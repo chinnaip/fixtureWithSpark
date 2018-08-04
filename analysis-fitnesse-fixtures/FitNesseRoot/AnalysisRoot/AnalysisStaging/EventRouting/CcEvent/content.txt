@@ -1,0 +1,14 @@
+Submit a CC Event and verify that it gets routed to the event_analyzed kafka topic
+
+!3 Parameterized Inputs
+!define EVENT_FILE_NAME     {${RESOURCE_DIRECTORY}/EventRouting/CcEvent.zip}
+!define EXPECTED_TOPIC_NAME {event_analyzed}
+
+!include .AnalysisRoot.AnalysisStaging.EventRouting.ParameterizedEvent
+
+!3 Check data package specific elements
+|script|data utility                                                                                                               |
+|check |checkJsonpath;|$event|$.['caption']    |XP Storage SIMEVENT : E834010                                                      |
+|check |checkJsonpath;|$event|$.['event_time'] |1461528414000                                                                      |
+|check |checkJsonpath;|$event|$.['severity']   |Service                                                                            |
+|check |checkJsonpath;|$event|$.['description']|Service : 452205 : Drive error(Normal R/W) - Correction Copy normal end - HDD002-05|

@@ -1,0 +1,14 @@
+Submit a DC Inline Event and verify that it gets routed to the event_analyzed kafka topic
+
+!3 Parameterized Inputs
+!define EVENT_FILE_NAME     {${RESOURCE_DIRECTORY}/EventRouting/DcInlineEvent.zip}
+!define EXPECTED_TOPIC_NAME {event_indication}
+
+!include .AnalysisRoot.AnalysisStaging.EventRouting.ParameterizedEvent
+
+!3 Check data package specific elements
+|script|data utility                                         |
+|check |checkJsonpath;|$event|$.['caption']    |null         |
+|check |checkJsonpath;|$event|$.['event_time'] |1409043388000|
+|check |checkJsonpath;|$event|$.['severity']   |5            |
+|check |checkJsonpath;|$event|$.['description']|null         |

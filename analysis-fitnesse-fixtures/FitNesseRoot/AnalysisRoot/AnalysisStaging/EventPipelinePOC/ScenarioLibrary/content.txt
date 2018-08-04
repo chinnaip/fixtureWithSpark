@@ -1,0 +1,11 @@
+|scenario|validate node|parentNode               |having childNode|childNode|value|nodeValue|
+|check   |check xpath  |//@parentNode//@childNode|@nodeValue                                |
+
+|scenario|validate property having parentNode|pn                                  |with propertyChildNode|pcn|and propertyValue|pv|
+|check   |check xpath                        |//@pn//Property[@name='@pcn']/@value|@pv                                            |
+
+|scenario|read node  |pn|having childNode|cn|into symbol|sn|
+|$@sn=   |check xpath|//@pn//@cn                           |
+
+|scenario|read property having parentNode|pn|with propertyChildNode|pcn|into symbol|sn|
+|$@sn=   |check xpath                    |//@pn//Property[@name='@pcn']/@value        |

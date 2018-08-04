@@ -1,0 +1,133 @@
+US 21107 - Consume  RWM from Sa20 kafka queue and store in Elastic Search
+PI8: US 51290 - Set of Fitnese test for Parser
+
+!3 Constants
+!| script        |data utility        |
+|$productserial1=|create random string|
+|$productnumber1=|create random string|
+|$gdid1=         |create random string|
+
+!2 List All Thingformation Types and get UUID from Collection
+!| script          |get request                                                |
+|set url           |$REST_MGMTURL/thingformationtypes                          |
+|check             |execute get request|true                                   |
+|show              |get response body                                          |
+|show               |get header x tracking id |
+|$tft_uuid_list=   |check jsonpath     |$[?(@.thingformationTypeName=='Collection')].thingformationTypeId       ||
+|$thingtypeid_list=|check jsonpath     |$[?(@.thingformationTypeName=='Collection')].thingTypeId||
+
+!| script     |data utility                          |
+|$tft_uuid=   |checkJsonpath;|$tft_uuid_list   |$.[0]|
+|$thingtypeid=|checkJsonpath;|$thingtypeid_list|$.[0]|
+
+
+!3 Preparation: Create Clean Thing (createThing)
+!| script                   |post request                                  |
+|set url                    |$REST_BASEURL/things                          |
+|useStreamingCredentialsFrom|${ZOOKEEPER_QUORUM}|Zookeeper|${ZOOKEEPER_ENV}|
+|set expected status        |201                                           |
+|set body                                                                  |!-
+{
+	"thingType": {
+		"thingTypeId": "$thingtypeid"
+	},
+	"attributes": {
+                "GDID": "$gdid1"
+	}
+}
+-!|
+|check       |execute post request|true              |
+|$thing_uuid=|check jsonpath      |thingId       |      |
+|$selfhref=  |check jsonpath      |$._links.self.href|
+|show        |get response body                      |
+|show               |get header x tracking id |
+
+!2 Preparation: Create Kafka Client - sa_collection
+!| script      |AvroConsumer|${KAFKA_SERVER}|${SCHEMA_REGISTRY_URLS}|sa_collection|com.hp.ts.sa.analysis.messages.SACollection|${KAFKA_SECURITY_PROTOCOL}|${KAFKA_TRUSTSTORE_PATH}|${KAFKA_TRUSTSTORE_PASSWD}|
+|$avroConsumerSaCollection=|start                                                                                                                                                                                           |
+
+!2 Preparation: Create Kafka Client - sa_thing_attribute_stream
+!| script      |AvroConsumer|${KAFKA_SERVER}|${SCHEMA_REGISTRY_URLS}|sa_thing_attribute_stream|com.hp.ts.sa.platform.messages.ThingAttributeUpdatePacket|${KAFKA_SECURITY_PROTOCOL}|${KAFKA_TRUSTSTORE_PATH}|${KAFKA_TRUSTSTORE_PASSWD}|
+|$avroConsumerThingAttributeStream=|start                                                                                                                                                                                              |
+
+!2 Upload Thingformation File - 3par.testzip
+!| script                   |multipart upload                                              |
+|set url                    |$REST_BASEURL/thingformations?thingformationTypeId=$tft_uuid&thingId=$thing_uuid|
+|useStreamingCredentialsFrom|${ZOOKEEPER_QUORUM}         |Zookeeper    |${ZOOKEEPER_ENV}   |
+|set multipart file         |${RESOURCE_DIRECTORY}/DataTee/3par.testzip                    |
+|set expected status        |201                                                           |
+|set multipart mime type    |application/zip                                               |
+|check                      |execute multipart upload    |true                             |
+|$tf_uuid=                  |check jsonpath              |$[0].uuid    |                   |
+|show                       |get response body                                             |
+|show               |get header x tracking id |
+
+
+!2 Consume Kafka Message - sa_collection
+!| script |$avroConsumerSaCollection                     |
+|$wrapper=|consume;|getCuriosityThingformationId|$tf_uuid|
+
+!2 Extract event object from wrapper
+!| script           |$wrapper       |
+|$sa_collection_rst=|get avro object|
+
+!2 Check if values are correct
+!| script|data utility                                                                                                         |
+|check   |checkJsonpath;|$sa_collection_rst|$.dataPackage.curiosity_thingformation_id     |$tf_uuid                            |
+|check   |checkJsonpath;|$sa_collection_rst|$.dataPackage.curiosity_thingformation_type_id|$tft_uuid                           |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.curiosity_thing_id          |$thing_uuid                         |
+|check   |checkJsonpath;|$sa_collection_rst|$.dataPackage.collected_date_time_millis      |1390032979664                       |
+|check   |checkJsonpath;|$sa_collection_rst|$.dataPackage.config_type_code                |51                                  |
+|check   |checkJsonpath;|$sa_collection_rst|$.dataPackage.datapackage_guid                |9b8c87c7-b215-45ad-b462-d75e5426f761|
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoringApplication.name                  |STaTS Bridge                        |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoringApplication.version               |4.84 Jan 03 2013                    |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoringApplication.type                  |DirectConnect                       |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.hostname                    |STaTS                               |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.manufacturer                |HP                                  |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.operating_system_name       |null                                |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.operating_system_version    |null                                |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.product_model               |null                                |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.product_number              |QL361A                              |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.serial_number               |1390032835                          |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.ip_address                  |null                                |
+|check   |checkJsonpath;|$sa_collection_rst|$.monitoredObject.mac_address                 |null                                |
+
+!2 Consume Kafka Message - sa_thing_attribute_stream
+!| script |$avroConsumerThingAttributeStream        |
+|$attribute_wrapper=|consume;|getThingId|$thing_uuid|
+
+!2 Extract event object from attribute_wrapper
+!| script                       |$attribute_wrapper|
+|$sa_thing_attribute_stream_rst=|get avro object   |
+
+!2 Check if values are correct
+!| script|data utility                                                                                                         |
+|check   |checkJsonpath;|$sa_thing_attribute_stream_rst|$.thing_id                                                 |$thing_uuid|
+|check   |checkJsonpath;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.deviceDisplayName        |STaTS      |
+|check   |checkJsonpath;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.hostname                 |STaTS      |
+|check   |checkJsonpath;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.autoDetectedProductNumber|QL361A     |
+|check   |checkJsonpath;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.autoDetectedSerialNumber |1390032835 |
+|check   |checkJsonpath;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.manufacturer             |HP         |
+
+!2 Check if certain values 'do not' exist
+!| script|data utility                                                                                                   |
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.softwarePartitionId|false|
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.hardwarePartitionId|false|
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.fqdn               |false|
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.reportedModel      |false|
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.macAddress         |false|
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.worldWideName      |false|
+|check   |checkJsonpathExists;|$sa_thing_attribute_stream_rst|$.attribute_updates.1390032979664.primaryIpAddress   |false|
+
+!3 Verification: Check if Thing is updated with Attributes from Thingformation
+!| script                   |get request                                                                   |
+|set url                    |$selfhref                                                                     |
+|useStreamingCredentialsFrom|${ZOOKEEPER_QUORUM}|Zookeeper                           |${ZOOKEEPER_ENV}     |
+|ensure                     |execute get request                                                           |
+|check                      |check jsonpath     |attributes.hostname                 |with retry|STaTS|true|
+|check                      |check jsonpath     |attributes.autoDetectedSerialNumber |1390032835           |
+|check                      |check jsonpath     |attributes.autoDetectedProductNumber|QL361A               |
+|check                      |check jsonpath     |attributes.manufacturer             |HP                   |
+|check                      |check jsonpath     |attributes.deviceDisplayName        |STaTS                |
+|show                       |get response body                                                             |
+|show               |get header x tracking id |

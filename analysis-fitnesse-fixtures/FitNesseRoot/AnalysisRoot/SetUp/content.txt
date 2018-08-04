@@ -1,0 +1,26 @@
+!2 Imports
+!|import                               |
+|com.hp.curiosity.fixtures             |
+|com.hp.curiosity.fixtures.kafka       |
+|com.hp.curiosity.fixtures.rest        |
+|com.hp.curiosity.fixtures.ui          |
+|com.hp.curiosity.fixtures.ui.cloud    |
+|com.hp.curiosity.fixtures.testserver  |
+|com.hp.curiosity.fixtures.notification|
+|com.hp.curiosity.fixtures.logging     |
+|com.hp.sastreaming.fixtures.kafka     |
+|com.hp.curiosity.fixtures.general     |
+
+!2 Global Constants
+!| script             |data utility                                                                              |
+|$REST_BASEURL=       |return string|${WEB_PROTOCOL}://${BASE_SERVER}:${REST_PORT}${PROJECT_ROOT}/domains/SA     |
+|$REST_MGMTURL=       |return string|${WEB_PROTOCOL}://${BASE_SERVER}:${REST_PORT}${PROJECT_ROOT}/mgmt/domains/SA|
+|$UI_BASEURL=         |return string|${WEB_PROTOCOL}://${BASE_SERVER}:${REST_PORT}${PROJECT_ROOT}                |
+|$SIMPLE_BASEURL=     |return string|${WEB_PROTOCOL}://${BASE_SERVER}:${REST_PORT}${PROJECT_ROOT}/go/SA          |
+|$NOTIFICATION_SERVER=|return string|${NOTIFICATION_SERVER}                                                      |
+
+
+!2 Initialize Fitnesse Client
+!| script            |data utility                            |
+|set zookeeper quorum|${ZOOKEEPER_QUORUM}|env|${ZOOKEEPER_ENV}|
+|$groupId=           |create random string                    |

@@ -1,0 +1,66 @@
+US 21107 - Consume  RWM from Sa20 kafka queue and store in Elastic Search
+PI8: US 51290 - Set of Fitnese test for Parser
+
+!3 Constants
+!| script        |data utility        |
+|$productserial1=|create random string|
+|$productnumber1=|create random string|
+|$gdid1=         |create random string|
+
+!2 List All Thingformation Types and get UUID from Collection
+!| script          |get request                                                |
+|set url           |$REST_MGMTURL/thingformationtypes                          |
+|check             |execute get request|true                                   |
+|show              |get response body                                          |
+|show               |get header x tracking id |
+|$tft_uuid_list=   |check jsonpath     |$[?(@.thingformationTypeName=='Collection')].thingformationTypeId       ||
+|$thingtypeid_list=|check jsonpath     |$[?(@.thingformationTypeName=='Collection')].thingTypeId||
+
+!| script     |data utility                          |
+|$tft_uuid=   |checkJsonpath;|$tft_uuid_list   |$.[0]|
+|$thingtypeid=|checkJsonpath;|$thingtypeid_list|$.[0]|
+
+
+!3 Preparation: Create Clean Thing (createThing)
+!| script                   |post request                                  |
+|set url                    |$REST_BASEURL/things                          |
+|useStreamingCredentialsFrom|${ZOOKEEPER_QUORUM}|Zookeeper|${ZOOKEEPER_ENV}|
+|set expected status        |201                                           |
+|set body                                                                  |!-
+{
+	"thingType": {
+		"thingTypeId": "$thingtypeid"
+	},
+	"attributes": {
+                "GDID": "$gdid1"
+	}
+}
+-!|
+|check       |execute post request|true              |
+|$thing_uuid=|check jsonpath      |thingId       |      |
+|$selfhref=  |check jsonpath      |$._links.self.href|
+|show        |get response body                      |
+|show               |get header x tracking id |
+
+!2 Upload Thingformation File - eva.testzip
+!| script                   |multipart upload                                              |
+|set url                    |$REST_BASEURL/thingformations?thingformationTypeId=$tft_uuid&thingId=$thing_uuid|
+|useStreamingCredentialsFrom|${ZOOKEEPER_QUORUM}         |Zookeeper    |${ZOOKEEPER_ENV}   |
+|set multipart file         |${RESOURCE_DIRECTORY}/DataTee/eva.testzip                     |
+|set expected status        |201                                                           |
+|set multipart mime type    |application/zip                                               |
+|check                      |execute multipart upload    |true                             |
+|$tf_uuid=                  |check jsonpath              |$[0].uuid    |                   |
+|show                       |get response body                                             |
+|show               |get header x tracking id |
+
+!3 Verification: Check if Thing is updated with Attributes from Thingformation
+!| script                   |get request                                                                         |
+|set url                    |$selfhref                                                                           |
+|useStreamingCredentialsFrom|${ZOOKEEPER_QUORUM}|Zookeeper                   |${ZOOKEEPER_ENV}                   |
+|ensure                     |execute get request                                                                 |
+|check                      |check jsonpath     |attributes.worldwideName    |with retry|5001-4380-025D-2FA0|true|
+|check                      |check jsonpath     |attributes.deviceDisplayName|5001-4380-025D-2FA0                |
+|check                      |check jsonpath     |attributes.reportedModel    |EVA                                |
+|show                       |get response body                                                                   |
+|show               |get header x tracking id |

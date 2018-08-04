@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ISEE-Event xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" schemaVersion="5.00" xmlns="http://www.hp.com/schemas/isee/5.00/event">
+  <HP_ISEEServiceIncident xmlns="">
+    <Caption>iLO4_200_PowerSupplyFailure</Caption>
+    <Description>USE42105AK:750349-B21:iLO4_200_PowerSupplyFailure:3:5CRHQ0BLL5U1P1</Description>
+    <CurrentState>0</CurrentState>
+    <Entitled>255</Entitled>
+    <ProviderID>ae2c5ba2-57c5-e511-a3c5-9cb654a96bf0</ProviderID>
+    <RequesterID />
+    <SequenceId>1</SequenceId>
+    <OperationStatus>OK</OperationStatus>
+    <Severity>Major</Severity>
+    <EventTime>2016-01-28T00:13:19.0000Z</EventTime>
+    <EventTypeId>200</EventTypeId>
+    <Business>ProLiant</Business>
+    <AnalysisToolName>EaaS</AnalysisToolName>
+    <Property name="deviceEntitlementType" value="1" />
+    <Property name="ReportingIndicationProvider" value="iLO 4 Embedded Alerting" />
+    <Property name="ReportingIndicationProviderVersion" value="2.10" />
+    <Property name="MaintenanceEvent" value="0" />
+    <Property name="FailingHostName" value="hoe0477.houston-us0380.slb.com" />
+    <Property name="FailingHostIP" value="" />
+    <Property name="FailingHostOSNameVersion" value="CentOS 64-bit/6.4" />
+    <Property name="FailingHostModelNumber" value="ProLiant SL250s Gen8" />
+    <Property name="isDirectConnect" value="true" />
+    <Property name="ReportingDeviceIP" value="192.168.26.41" />
+    <Property name="ErrorType" value="HW" />
+    <Property name="EventUniqueID" value="200" />
+    <Property name="RulesetName" value="Embedded" />
+    <Property name="RuleSetVersion" value="7.37" />
+    <Property name="RuleID" value="iLO4_200_PowerSupplyFailure" />
+    <Property name="RuleSeverity" value="Major" />
+    <Property name="RuleVersion" value="7.37" />
+    <Property name="ReportingEventSubCategory" value="" />
+    <Property name="ProbableCauseDescription" value="Power Supply Failure" />
+    <Property name="monitorName" value="" />
+    <Property name="AnalysisToolVersion" value="7.1" />
+    <Property name="InformationalURL" value="http://www.hp.com/go/sml" />
+    <Property name="TestEvent" value="0" />
+    <Property name="supportDeliveryCountry" value="" />
+    <Property name="isee.event.region" value="americas" />
+    <Property name="closureCode" value="0" />
+  </HP_ISEEServiceIncident>
+  <CIM_AlertIndications xmlns="">
+    <CIM_AlertIndication>
+      <IndicationIdentifier>ae2c5ba2-57c5-e511-a3c5-9cb654a96bf0</IndicationIdentifier>
+      <CorrelatedIndications />
+      <Description>The power supply in Bay 3 has failed and should be replaced with spare part number 704604-001.
+
+ 
+Failing Part:
+
+Power Supply Bay:               3
+Power Supply Spare Part #:      704604-001
+
+ 
+Failing Part Location:
+The failing power supply is installed in Bay 3 of the server hoe0477.houston-us0380.slb.com a ProLiant SL250s Gen8 with serial number USE42105AK.
+
+ 
+Service Notes:
+Check here for part replacement procedures for the enclosure containing your ProLiant SL250s Gen8: http://www.hp.com/go/sml
+
+Power Supply Bay:               3
+Power Supply Spare Part #:      704604-001
+
+Server Name:                    hoe0477.houston-us0380.slb.com
+Server Model:                   ProLiant SL250s Gen8 
+Server Product ID:              750349-B21
+Server Serial Number:           USE42105AK
+Server FW Rev:                  P75 12/01/2014</Description>
+      <AlertingManagedElement>Integrated Lights-Out 4 (iLO 4)</AlertingManagedElement>
+      <AlertingElementFormat>0</AlertingElementFormat>
+      <OtherAlertingElementFormat />
+      <AlertType>5</AlertType>
+      <OtherAlertType>HW</OtherAlertType>
+      <PerceivedSeverity>5</PerceivedSeverity>
+      <OtherSeverity>Major</OtherSeverity>
+      <RecommendedActions>The power supply in Bay 3 has failed and should be replaced with spare part number 704604-001.</RecommendedActions>
+      <EventID>200</EventID>
+      <EventTime>2016-01-28T00:13:19.0000Z</EventTime>
+      <SystemCreationClassName />
+      <SystemName>hoe0477.houston-us0380.slb.com</SystemName>
+      <ProviderName>iLO 4 Embedded Alerting</ProviderName>
+    </CIM_AlertIndication>
+  </CIM_AlertIndications>
+  <AlertSource xmlns="">
+    <ObjectOfServiceProperties>
+      <Property name="deviceClass" value="System Power" />
+      <Property name="FailingFRUFirmwareRevision" value="" />
+      <Property name="FailingFRULocationAddress" value="" />
+      <Property name="FailingFRUPartNumber" value="704604-001" />
+      <Property name="FRUVendorID" value="" />
+      <Property name="FailingFRULocation" value="3" />
+      <Property name="FailingFRUAdditionalInfo" value="Service Notes:&#xD;&#xA;Check here for part replacement procedures for the enclosure containing your ProLiant SL250s Gen8: http://www.hp.com/go/sml&#xD;&#xA;&#xD;&#xA;Power Supply Bay:               3&#xD;&#xA;Power Supply Spare Part #:      704604-001&#xD;&#xA;&#xD;&#xA;Server Name:                    hoe0477.houston-us0380.slb.com&#xD;&#xA;Server Model:                   ProLiant SL250s Gen8 &#xD;&#xA;Server Product ID:              750349-B21&#xD;&#xA;Server Serial Number:           USE42105AK&#xD;&#xA;Server FW Rev:                  P75 12/01/2014" />
+      <Property name="FailingFRUModelNumber" value="" />
+      <Property name="FailingFRUProductNumber" value="" />
+      <Property name="FailingFRUSerialNumber" value="5CRHQ0BLL5U1P1" />
+      <Property name="FailingFRUList" value="Failing Part:&#xD;&#xA;&#xD;&#xA;Power Supply Bay:               3&#xD;&#xA;Power Supply Spare Part #:      704604-001" />
+    </ObjectOfServiceProperties>
+    <PRS_Address>
+      <AddressType>0</AddressType>
+      <Address1 />
+      <Address2 />
+      <Address3 />
+      <Address4 />
+      <City />
+      <Region />
+      <PostalCode />
+      <TimeZone />
+      <Country />
+    </PRS_Address>
+    <HP_ISEEPerson>
+      <CommunicationMode>0</CommunicationMode>
+      <ContactType />
+      <FirstName />
+      <LastName />
+      <Salutation />
+      <Title />
+      <EmailAddress />
+      <TelephoneNumber />
+      <PreferredLanguage />
+      <Availability />
+    </HP_ISEEPerson>
+    <HP_OOSIdentifiers>
+      <GDID type="Hardware" usn="1001000000000">a843806a-d80b-46d3-8edc-baff5fea4128</GDID>
+      <GDID type="OperatingSystem" usn="1001000000000">a843806a-d80b-46d3-8edc-baff5fea4128</GDID>
+    </HP_OOSIdentifiers>
+    <HP_ISEEEntitlementParameters>
+      <EntitlementType />
+      <EntitlementId />
+      <SerialNumber>USE42105AK</SerialNumber>
+      <ProductNumber>750349-B21</ProductNumber>
+      <ProductId />
+      <ObligationId />
+    </HP_ISEEEntitlementParameters>
+  </AlertSource>
+  <AssociatedDevice role="Hosting Device" xmlns="">
+    <ObjectOfServiceProperties>
+      <Property name="FailingHostName" value="hoe0477.houston-us0380.slb.com" />
+      <Property name="FailingHostModelNumber" value="ProLiant SL250s Gen8" />
+      <Property name="FailingHostIP" value="" />
+      <Property name="FailingHostOSName" value="CentOS 64-bit" />
+      <Property name="FailingHostOSNameVersion" value="CentOS 64-bit/6.4" />
+      <Property name="FailingHostOSVersion" value="6.4" />
+      <Property name="FailingHostProductNumber" value="750349-B21" />
+      <Property name="FailingHostSerialNumber" value="USE42105AK" />
+      <Property name="FailingHostWWN" value="" />
+      <Property name="FailingHostBusiness" value="ProLiant" />
+      <Property name="FailingHostBusinessType" value="ProLiant" />
+      <Property name="FailingHostFirmwareVersion" value="P75 12/01/2014" />
+      <Property name="FirmwareVersion" value="P75 12/01/2014" />
+      <Property name="CPSupportProviderID" value="0" />
+      <Property name="CPServiceProviderID" value="0" />
+    </ObjectOfServiceProperties>
+    <PRS_Address>
+      <AddressType>0</AddressType>
+      <Address1>10001 RICHMOND AVE</Address1>
+      <Address2 />
+      <Address3 />
+      <Address4 />
+      <City>HOUSTON</City>
+      <Region>TX</Region>
+      <PostalCode>77042</PostalCode>
+      <TimeZone />
+      <Country>US</Country>
+    </PRS_Address>
+    <HP_ISEEPerson>
+      <CommunicationMode>0</CommunicationMode>
+      <ContactType />
+      <FirstName />
+      <LastName />
+      <Salutation />
+      <Title />
+      <EmailAddress />
+      <TelephoneNumber />
+      <PreferredLanguage />
+      <Availability />
+    </HP_ISEEPerson>
+    <HP_ISEEPerson>
+      <CommunicationMode>255</CommunicationMode>
+      <ContactType>EMAIL</ContactType>
+      <FirstName>OPERATOR</FirstName>
+      <LastName>ACCOUNT</LastName>
+      <Salutation />
+      <Title />
+      <EmailAddress>hss-hw-support@slb.com</EmailAddress>
+      <TelephoneNumber>713-689-2102</TelephoneNumber>
+      <PreferredLanguage>en</PreferredLanguage>
+      <Availability />
+      <Property name="Perferred Time Zone" value="" />
+    </HP_ISEEPerson>
+    <HP_OOSIdentifiers>
+      <GDID type="Hardware" usn="1001000000000">a843806a-d80b-46d3-8edc-baff5fea4128</GDID>
+      <GDID type="OperatingSystem" usn="1001000000000">a843806a-d80b-46d3-8edc-baff5fea4128</GDID>
+      <LDID />
+      <CSID>
+        <Section name="SYSTEM_IDENTIFIERS">
+          <Property name="CollectorType" value="iLO 4 Embedded Alerting" />
+          <Property name="CollectorVersion" value="2.10" />
+          <Property name="UserApprovedSystemSerialNumber" value="" />
+          <Property name="AutoDetectedSystemSerialNumber" value="USE42105AK" />
+          <Property name="SystemIdent" value="" />
+          <Property name="CoreSystemModel" value="ProLiant SL250s Gen8" />
+          <Property name="Manufacturer" value="HPE" />
+          <Property name="GUID" value="" />
+          <Property name="Hostname" value="hoe0477.houston-us0380.slb.com" />
+          <Property name="FQDN" value="hoe0477.houston-us0380.slb.com" />
+          <Property name="MacAddress" value="" />
+          <Property name="IPAddress" value="" />
+          <Property name="ProductId" value="750349-B21" />
+          <Property name="UserApprovedProductId" value="" />
+          <Property name="TimestampGenerated" value="2016/01/28 01:36:38 UTC" />
+          <Property name="OSNameAndVersionString" value="CentOS 64-bit/6.4" />
+        </Section>
+      </CSID>
+    </HP_OOSIdentifiers>
+    <HP_ISEEEntitlementParameters>
+      <EntitlementType />
+      <EntitlementId />
+      <SerialNumber>USE42105AK</SerialNumber>
+      <ProductNumber>750349-B21</ProductNumber>
+      <ProductId />
+      <ObligationId />
+    </HP_ISEEEntitlementParameters>
+  </AssociatedDevice>
+  <HP_ISEECustomer xmlns="">
+    <Business />
+    <Name>PTS Schlumberger</Name>
+  </HP_ISEECustomer>
+  <Log xmlns="">
+    <Activity>
+      <Date>2016-01-28T01:36:42.0000+00:00</Date>
+      <Component>EventTranslation</Component>
+      <Description>Service Indication translated to ISEE Event using EaaS</Description>
+      <Result>OK</Result>
+      <Duration>0</Duration>
+      <Hostname>G1W3294G</Hostname>
+      <Username />
+      <Rule />
+      <ErrorCode>0</ErrorCode>
+    </Activity>
+  </Log>
+</ISEE-Event>

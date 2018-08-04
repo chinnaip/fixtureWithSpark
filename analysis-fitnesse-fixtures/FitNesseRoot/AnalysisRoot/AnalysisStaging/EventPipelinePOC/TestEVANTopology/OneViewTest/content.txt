@@ -1,0 +1,323 @@
+!3 !style_code(!style_blue[US 44922 - Submit a good !-OneView event-! and validate the output]) 
+!*> Test Setup
+!define EVENT_FILE_PATH           {${RESOURCE_DIRECTORY}/event/ov/5241447a-06dc-4789-9862-86347eaa2cb2.zip}
+!define PRODUCER_TOPIC_NAME       {event_indication}
+!define CONSUMER_TOPIC_NAME       {event_analyzed}
+!define EXPECTED_EVENT_ATTACHMENT {eventAnalyzed.xml}
+!define EXPECTED_EVENT_FILE       {${EVENT_FILE_PATH}}
+!define EXPECTED_OUTPUT_FILE      {index.xml}
+!include -c .AnalysisRoot.AnalysisStaging.EventPipelinePOC.ParameterizedEvent
+*!
+!3 Validate expected attachment: ${EXPECTED_EVENT_ATTACHMENT}
+!|validate node having childNode  value               |
+|parentNode|childNode       |nodeValue                |
+|${PNODE1} |!-Caption-!     |$expectedCaption         |
+|${PNODE1} |Description     |$expectedDescription     |
+|${PNODE1} |CurrentState    |    0                     |
+|${PNODE1} |Entitled        |$expectedEntitled        |
+|${PNODE1} |ProviderID      |$expectedProviderID      |
+|${PNODE1} |SequenceId      |$expectedSequenceId      |
+|${PNODE1} |Operation       |                         |
+|${PNODE1} |OperationStatus |                         |
+|${PNODE1} |Severity        |$expectedSeverity        |
+|${PNODE1} |EventTime       |  =~/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[.]\d{3}Z/                       |
+|${PNODE1} |EventTypeId     |$expectedEventTypeId     |
+|${PNODE1} |Business        |$expectedBusiness        |
+|${PNODE1} |AnalysisToolName|$expectedAnalysisToolName|
+
+!|validate property having parentNode with propertyChildNode and propertyValue           |
+|pn       |pcn                               |pv                                         |
+|${PNODE1}|isOneView                         |$expectedisOneView                         |
+|${PNODE1}|isAnalzyed                        |$expectedisAnalzyed                        |
+|${PNODE1}|deviceEntitlementType             |$expecteddeviceEntitlementType             |
+|${PNODE1}|ReportingIndicationProvider       |$expectedReportingIndicationProvider       |
+|${PNODE1}|ReportingIndicationProviderVersion|$expectedReportingIndicationProviderVersion|
+|${PNODE1}|MaintenanceEvent                  |$expectedMaintenanceEvent                  |
+|${PNODE1}|FailingHostName                   |$expectedFailingHostName                   |
+|${PNODE1}|FailingHostIP                     |$expectedFailingHostIP                     |
+|${PNODE1}|FailingHostOSNameVersion          |$expectedFailingHostOSNameVersion          |
+|${PNODE1}|FailingHostModelNumber            |$expectedFailingHostModelNumber            |
+|${PNODE1}|ReportingDeviceIP                 |$expectedReportingDeviceIP                 |
+|${PNODE1}|ErrorType                         |$expectedErrorType                         |
+|${PNODE1}|EventUniqueID                     |$expectedEventUniqueID                     |
+|${PNODE1}|RulesetName                       |$expectedRulesetName                       |
+|${PNODE1}|RuleSetVersion                    |$expectedRuleSetVersion                    |
+|${PNODE1}|RuleID                            |$expectedRuleID                            |
+|${PNODE1}|RuleSeverity                      |$expectedRuleSeverity                      |
+|${PNODE1}|RuleVersion                       |$expectedRuleVersion                       |
+|${PNODE1}|ReportingEventSubCategory         |$expectedReportingEventSubCategory         |
+|${PNODE1}|ProbableCauseDescription          |$expectedProbableCauseDescription          |
+|${PNODE1}|monitorName                       |$expectedmonitorName                       |
+|${PNODE1}|AnalysisToolVersion               |$expectedAnalysisToolVersion               |
+|${PNODE1}|InformationalURL                  |$expectedInformationalURL                  |
+|${PNODE1}|TestEvent                         |$expectedTestEvent                         |
+|${PNODE1}|supportDeliveryCountry            |                                           |
+
+!|validate node having childNode  value                                   |
+|parentNode|childNode                 |nodeValue                          |
+|${PNODE2} |IndicationIdentifier      |$expectedIndicationIdentifier      |
+|${PNODE2} |CorrelatedIndications     |$expectedCorrelatedIndications     |
+|${PNODE2} |Description               |$expectedDescription2              |
+|${PNODE2} |AlertingManagedElement    |$expectedAlertingManagedElement    |
+|${PNODE2} |AlertingElementFormat     |$expectedAlertingElementFormat     |
+|${PNODE2} |OtherAlertingElementFormat|$expectedOtherAlertingElementFormat|
+|${PNODE2} |AlertType                 |$expectedAlertType                 |
+|${PNODE2} |OtherAlertType            |$expectedOtherAlertType            |
+|${PNODE2} |PerceivedSeverity         |$expectedPerceivedSeverity         |
+|${PNODE2} |OtherSeverity             |$expectedOtherSeverity             |
+|${PNODE2} |RecommendedActions        |$expectedRecommendedActions        |
+|${PNODE2} |EventID                   |$expectedEventID                   |
+|${PNODE2} |EventTime                 |     =~/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/                              |
+|${PNODE2} |SystemCreationClassName   |$expectedSystemCreationClassName   |
+|${PNODE2} |SystemName                |$expectedSystemName                |
+|${PNODE2} |ProviderName              |$expectedProviderName              |
+
+!|validate property having parentNode with propertyChildNode and propertyValue|
+|pn         |pcn                         |pv                                  |
+|${PNODE3}  |deviceClass                 |$expecteddeviceClass                |
+|${PNODE3}  |FailingFRUFirmwareRevision  |$expectedFailingFRUFirmwareRevision |
+|${PNODE3}  |FailingFRULocationAddress   |$expectedFailingFRULocationAddress  |
+|${PNODE3}  |FailingFRUPartNumber        |$expectedFailingFRUPartNumber       |
+|${PNODE3}  |FRUVendorID                 |$expectedFRUVendorID                |
+|${PNODE3}  |FailingFRULocation          |$expectedFailingFRULocation         |
+|${PNODE3}  |FailingFRUAdditionalInfo    |$expectedFailingFRUAdditionalInfo   |
+|${PNODE3}  |FailingFRUModelNumber       |$expectedFailingFRUModelNumber      |
+|${PNODE3}  |FailingFRUProductNumber     |$expectedFailingFRUProductNumber    |
+|${PNODE3}  |FailingFRUSerialNumber      |$expectedFailingFRUSerialNumber     |
+|${PNODE3}  |FailingFRUList              |$expectedFailingFRUList             |
+
+!|validate node having childNode  value                                                            |
+|parentNode                                          |childNode        |nodeValue                  |
+|${PNODE3}                                           |AddressType      |$expectedAddressType       |
+|${PNODE3}                                           |Address1         |$expectedAddress1          |
+|${PNODE3}                                           |Address2         |$expectedAddress2          |
+|${PNODE3}                                           |Address3         |$expectedAddress3          |
+|${PNODE3}                                           |Address4         |$expectedAddress4          |
+|${PNODE3}                                           |City             |$expectedCity              |
+|${PNODE3}                                           |Region           |$expectedRegion            |
+|${PNODE3}                                           |PostalCode       |$expectedPostalCode        |
+|${PNODE3}                                           |TimeZone         |$expectedTimeZone          |
+|${PNODE3}                                           |Country          |$expectedCountry           |
+|${PNODE3}//HP_ISEEPerson[1]                         |CommunicationMode|$expectedCommunicationMode |
+|${PNODE3}//HP_ISEEPerson[1]                         |ContactType      |$expectedContactType       |
+|${PNODE3}//HP_ISEEPerson[1]                         |FirstName        |$expectedFirstName         |
+|${PNODE3}//HP_ISEEPerson[1]                         |LastName         |$expectedLastName          |
+|${PNODE3}//HP_ISEEPerson[1]                         |Salutation       |$expectedSalutation        |
+|${PNODE3}//HP_ISEEPerson[1]                         |Title            |$expectedTitle             |
+|${PNODE3}//HP_ISEEPerson[1]                         |EmailAddress     |$expectedEmailAddress      |
+|${PNODE3}//HP_ISEEPerson[1]                         |TelephoneNumber  |$expectedTelephoneNumber   |
+|${PNODE3}//HP_ISEEPerson[1]                         |PreferredLanguage|$expectedPreferredLanguage |
+|${PNODE3}//HP_ISEEPerson[1]                         |Availability     |$expectedAvailability      |
+|${PNODE3}//HP_ISEEPerson[1]//Property[@name='Notes']|@value           |$expectedProperty          |
+|${PNODE3}//HP_ISEEPerson[2]                         |CommunicationMode|$expectedCommunicationMode2|
+|${PNODE3}//HP_ISEEPerson[2]                         |ContactType      |$expectedContactType2      |
+|${PNODE3}//HP_ISEEPerson[2]                         |FirstName        |$expectedFirstName2        |
+|${PNODE3}//HP_ISEEPerson[2]                         |LastName         |$expectedLastName2         |
+|${PNODE3}//HP_ISEEPerson[2]                         |Salutation       |$expectedSalutation2       |
+|${PNODE3}//HP_ISEEPerson[2]                         |Title            |$expectedTitle2            |
+|${PNODE3}//HP_ISEEPerson[2]                         |EmailAddress     |$expectedEmailAddress2     |
+|${PNODE3}//HP_ISEEPerson[2]                         |TelephoneNumber  |$expectedTelephoneNumber2  |
+|${PNODE3}//HP_ISEEPerson[2]                         |PreferredLanguage|$expectedPreferredLanguage2|
+|${PNODE3}//HP_ISEEPerson[2]                         |Availability     |$expectedAvailability2     |
+|${PNODE3}//Property[@name='Notes']                  |@value           |$expectedProperty2         |
+|${PNODE3}//GDID[@type='Hardware']                   |text()           |$expectedtextHW            |
+|${PNODE3}//GDID[@type='OperatingSystem']            |text()           |$expectedtextOS            |
+|${PNODE3}                                           |LDID             |$expectedLDID              |
+
+!|validate property having parentNode with propertyChildNode and propertyValue            |
+|pn       |pcn                           |pv                                              |
+|${PNODE3}|CollectorType                 |$expected${PNODE3}CollectorType                 |
+|${PNODE3}|CollectorVersion              |$expected${PNODE3}CollectorVersion              |
+|${PNODE3}|UserApprovedSystemSerialNumber|$expected${PNODE3}UserApprovedSystemSerialNumber|
+|${PNODE3}|AutoDetectedSystemSerialNumber|$expected${PNODE3}AutoDetectedSystemSerialNumber|
+|${PNODE3}|SystemIdent                   |$expected${PNODE3}SystemIdent                   |
+|${PNODE3}|CoreSystemModel               |$expected${PNODE3}CoreSystemModel               |
+|${PNODE3}|Manufacturer                  |$expected${PNODE3}Manufacturer                  |
+|${PNODE3}|HPID                          |$expected${PNODE3}HPID                          |
+|${PNODE3}|SPID                          |$expected${PNODE3}SPID                          |
+|${PNODE3}|GUID                          |$expected${PNODE3}GUID                          |
+|${PNODE3}|Hostname                      |$expected${PNODE3}Hostname                      |
+|${PNODE3}|FQDN                          |$expected${PNODE3}FQDN                          |
+|${PNODE3}|MacAddress                    |$expected${PNODE3}MacAddress                    |
+|${PNODE3}|IPAddress                     |$expected${PNODE3}IPAddress                     |
+|${PNODE3}|ClusterAlias                  |$expected${PNODE3}ClusterAlias                  |
+|${PNODE3}|ProductId                     |$expected${PNODE3}ProductId                     |
+|${PNODE3}|UserApprovedProductId         |$expected${PNODE3}UserApprovedProductId         |
+|${PNODE3}|TimestampGenerated            |$expected${PNODE3}TimestampGenerated            |
+|${PNODE3}|OSNameAndVersionString        |$expected${PNODE3}OSNameAndVersionString        |
+
+!|validate node having childNode  value                      |
+|parentNode|childNode      |nodeValue                        |
+|${PNODE3} |EntitlementType|$expected${PNODE3}EntitlementType|
+|${PNODE3} |EntitlementId  |$expected${PNODE3}EntitlementId  |
+|${PNODE3} |SerialNumber   |$expected${PNODE3}SerialNumber   |
+|${PNODE3} |ProductNumber  |$expected${PNODE3}ProductNumber  |
+|${PNODE3} |ProductId      |$expected${PNODE3}ProductId      |
+|${PNODE3} |ObligationId   |$expected${PNODE3}ObligationId   |
+
+!|validate property having parentNode with propertyChildNode and propertyValue           |
+|pn       |pcn                       |pv                                                 |
+|${PNODE4}|CustomDeliveryId          |$expected${HOSTINGDEVICE}CustomDeliveryId          |
+|${PNODE4}|FailingHostName           |$expected${HOSTINGDEVICE}FailingHostName           |
+|${PNODE4}|FailingHostModelNumber    |$expected${HOSTINGDEVICE}FailingHostModelNumber    |
+|${PNODE4}|FailingHostIP             |$expected${HOSTINGDEVICE}FailingHostIP             |
+|${PNODE4}|FailingHostOSName         |$expected${HOSTINGDEVICE}FailingHostOSName         |
+|${PNODE4}|FailingHostOSNameVersion  |$expected${HOSTINGDEVICE}FailingHostOSNameVersion  |
+|${PNODE4}|FailingHostOSVersion      |$expected${HOSTINGDEVICE}FailingHostOSVersion      |
+|${PNODE4}|FailingHostProductNumber  |$expected${HOSTINGDEVICE}FailingHostProductNumber  |
+|${PNODE4}|FailingHostSerialNumber   |$expected${HOSTINGDEVICE}FailingHostSerialNumber   |
+|${PNODE4}|FailingHostWWN            |$expected${HOSTINGDEVICE}FailingHostWWN            |
+|${PNODE4}|FailingHostBusiness       |$expected${HOSTINGDEVICE}FailingHostBusiness       |
+|${PNODE4}|FailingHostBusinessType   |$expected${HOSTINGDEVICE}FailingHostBusinessType   |
+|${PNODE4}|FailingHostFirmwareVersion|$expected${HOSTINGDEVICE}FailingHostFirmwareVersion|
+|${PNODE4}|FirmwareVersion           |$expected${HOSTINGDEVICE}FirmwareVersion           |
+
+!|validate node having childNode  value                                                                            |
+|parentNode                                          |childNode        |nodeValue                                  |
+|${PNODE4}                                           |AddressType      |$expected${HOSTINGDEVICE}AddressType       |
+|${PNODE4}                                           |Address1         |$expected${HOSTINGDEVICE}Address1          |
+|${PNODE4}                                           |Address2         |$expected${HOSTINGDEVICE}Address2          |
+|${PNODE4}                                           |Address3         |$expected${HOSTINGDEVICE}Address3          |
+|${PNODE4}                                           |Address4         |$expected${HOSTINGDEVICE}Address4          |
+|${PNODE4}                                           |City             |$expected${HOSTINGDEVICE}City              |
+|${PNODE4}                                           |Region           |$expected${HOSTINGDEVICE}Region            |
+|${PNODE4}                                           |PostalCode       |$expected${HOSTINGDEVICE}PostalCode        |
+|${PNODE4}                                           |TimeZone         |$expected${HOSTINGDEVICE}TimeZone          |
+|${PNODE4}                                           |Country          |$expected${HOSTINGDEVICE}Country           |
+|${PNODE4}//HP_ISEEPerson[1]                         |CommunicationMode|$expected${HOSTINGDEVICE}1CommunicationMode|
+|${PNODE4}//HP_ISEEPerson[1]                         |ContactType      |$expected${HOSTINGDEVICE}1ContactType      |
+|${PNODE4}//HP_ISEEPerson[1]                         |FirstName        |$expected${HOSTINGDEVICE}1FirstName        |
+|${PNODE4}//HP_ISEEPerson[1]                         |LastName         |$expected${HOSTINGDEVICE}1LastName         |
+|${PNODE4}//HP_ISEEPerson[1]                         |Salutation       |$expected${HOSTINGDEVICE}1Salutation       |
+|${PNODE4}//HP_ISEEPerson[1]                         |Title            |$expected${HOSTINGDEVICE}1Title            |
+|${PNODE4}//HP_ISEEPerson[1]                         |EmailAddress     |$expected${HOSTINGDEVICE}1EmailAddress     |
+|${PNODE4}//HP_ISEEPerson[1]                         |TelephoneNumber  |$expected${HOSTINGDEVICE}1TelephoneNumber  |
+|${PNODE4}//HP_ISEEPerson[1]                         |PreferredLanguage|$expected${HOSTINGDEVICE}1PreferredLanguage|
+|${PNODE4}//HP_ISEEPerson[1]                         |Availability     |$expected${HOSTINGDEVICE}1Availability     |
+|${PNODE4}//HP_ISEEPerson[1]//Property[@name='Notes']|@value           |$expected${HOSTINGDEVICE}1Property         |
+|${PNODE4}//HP_ISEEPerson[2]                         |CommunicationMode|$expected${HOSTINGDEVICE}2CommunicationMode|
+|${PNODE4}//HP_ISEEPerson[2]                         |ContactType      |$expected${HOSTINGDEVICE}2ContactType      |
+|${PNODE4}//HP_ISEEPerson[2]                         |FirstName        |$expected${HOSTINGDEVICE}2FirstName        |
+|${PNODE4}//HP_ISEEPerson[2]                         |LastName         |$expected${HOSTINGDEVICE}2LastName         |
+|${PNODE4}//HP_ISEEPerson[2]                         |Salutation       |$expected${HOSTINGDEVICE}2Salutation       |
+|${PNODE4}//HP_ISEEPerson[2]                         |Title            |$expected${HOSTINGDEVICE}2Title            |
+|${PNODE4}//HP_ISEEPerson[2]                         |EmailAddress     |$expected${HOSTINGDEVICE}2EmailAddress     |
+|${PNODE4}//HP_ISEEPerson[2]                         |TelephoneNumber  |$expected${HOSTINGDEVICE}2TelephoneNumber  |
+|${PNODE4}//HP_ISEEPerson[2]                         |PreferredLanguage|$expected${HOSTINGDEVICE}2PreferredLanguage|
+|${PNODE4}//HP_ISEEPerson[2]                         |Availability     |$expected${HOSTINGDEVICE}2Availability     |
+|${PNODE4}//HP_ISEEPerson[2]//Property[@name='Notes']|@value           |$expected${HOSTINGDEVICE}2Property         |
+|${PNODE4}                                           |LDID             |$expected${HOSTINGDEVICE}2LDID             |
+
+!|validate property having parentNode with propertyChildNode and propertyValue                   |
+|pn       |pcn                           |pv                                                     |
+|${PNODE4}|CollectorType                 |$expected${HOSTINGDEVICE}CollectorType                 |
+|${PNODE4}|CollectorVersion              |$expected${HOSTINGDEVICE}CollectorVersion              |
+|${PNODE4}|UserApprovedSystemSerialNumber|$expected${HOSTINGDEVICE}UserApprovedSystemSerialNumber|
+|${PNODE4}|AutoDetectedSystemSerialNumber|$expected${HOSTINGDEVICE}AutoDetectedSystemSerialNumber|
+|${PNODE4}|SystemIdent                   |$expected${HOSTINGDEVICE}SystemIdent                   |
+|${PNODE4}|CoreSystemModel               |$expected${HOSTINGDEVICE}CoreSystemModel               |
+|${PNODE4}|Manufacturer                  |$expected${HOSTINGDEVICE}Manufacturer                  |
+|${PNODE4}|GUID                          |$expected${HOSTINGDEVICE}GUID                          |
+|${PNODE4}|Hostname                      |$expected${HOSTINGDEVICE}Hostname                      |
+|${PNODE4}|FQDN                          |$expected${HOSTINGDEVICE}FQDN                          |
+|${PNODE4}|MacAddress                    |$expected${HOSTINGDEVICE}MacAddress                    |
+|${PNODE4}|IPAddress                     |$expected${HOSTINGDEVICE}IPAddress                     |
+|${PNODE4}|ProductId                     |$expected${HOSTINGDEVICE}ProductId                     |
+|${PNODE4}|UserApprovedProductId         |$expected${HOSTINGDEVICE}UserApprovedProductId         |
+|${PNODE4}|TimestampGenerated            |      =~/\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2} UTC/                                                 |
+|${PNODE4}|OSNameAndVersionString        |$expected${HOSTINGDEVICE}OSNameAndVersionString        |
+
+!|validate node having childNode  value                             |
+|parentNode|childNode      |nodeValue                               |
+|${PNODE4} |EntitlementType|$expected${HOSTINGDEVICE}EntitlementType|
+|${PNODE4} |EntitlementId  |$expected${HOSTINGDEVICE}EntitlementId  |
+|${PNODE4} |SerialNumber   |$expected${HOSTINGDEVICE}SerialNumber   |
+|${PNODE4} |ProductNumber  |$expected${HOSTINGDEVICE}ProductNumber  |
+|${PNODE4} |ProductId      |$expected${HOSTINGDEVICE}ProductId      |
+|${PNODE4} |ObligationId   |$expected${HOSTINGDEVICE}ObligationId   |
+
+!|validate property having parentNode with propertyChildNode and propertyValue                       |
+|pn       |pcn                               |pv                                                     |
+|${PNODE5}|DeploymentType                    |$expected${ISEECLIENT}DeploymentType                   |
+|${PNODE5}|CriticalCMS                       |$expected${ISEECLIENT}CriticalCMS                      |
+|${PNODE5}|override.EnvironmentalContract_MCP|$expected${ISEECLIENT}overrideEnvironmentalContract_MCP|
+
+!|validate node having childNode  value                                                                                        |
+|parentNode                                                        |childNode        |nodeValue                                |
+|${PNODE5}                                                         |AddressType      |$expected${ISEECLIENT}AddressType        |
+|${PNODE5}                                                         |Address1         |$expected${ISEECLIENT}Address1           |
+|${PNODE5}                                                         |Address2         |$expected${ISEECLIENT}Address2           |
+|${PNODE5}                                                         |Address3         |$expected${ISEECLIENT}Address3           |
+|${PNODE5}                                                         |Address4         |$expected${ISEECLIENT}Address4           |
+|${PNODE5}                                                         |City             |$expected${ISEECLIENT}City               |
+|${PNODE5}                                                         |Region           |$expected${ISEECLIENT}Region             |
+|${PNODE5}                                                         |PostalCode       |$expected${ISEECLIENT}PostalCode         |
+|${PNODE5}                                                         |TimeZone         |$expected${ISEECLIENT}TimeZone           |
+|${PNODE5}                                                         |Country          |$expected${ISEECLIENT}Country            |
+|${PNODE5}//HP_ISEEPerson[1]                                       |CommunicationMode|$expected${ISEECLIENT}CommunicationMode  |
+|${PNODE5}//HP_ISEEPerson[1]                                       |ContactType      |$expected${ISEECLIENT}ContactType        |
+|${PNODE5}//HP_ISEEPerson[1]                                       |FirstName        |$expected${ISEECLIENT}FirstName          |
+|${PNODE5}//HP_ISEEPerson[1]                                       |LastName         |$expected${ISEECLIENT}LastName           |
+|${PNODE5}//HP_ISEEPerson[1]                                       |Salutation       |$expected${ISEECLIENT}Salutation         |
+|${PNODE5}//HP_ISEEPerson[1]                                       |Title            |$expected${ISEECLIENT}Title              |
+|${PNODE5}//HP_ISEEPerson[1]                                       |EmailAddress     |$expected${ISEECLIENT}EmailAddress       |
+|${PNODE5}//HP_ISEEPerson[1]                                       |TelephoneNumber  |$expected${ISEECLIENT}TelephoneNumber    |
+|${PNODE5}//HP_ISEEPerson[1]                                       |PreferredLanguage|$expected${ISEECLIENT}PreferredLanguage  |
+|${PNODE5}//HP_ISEEPerson[1]                                       |Availability     |$expected${ISEECLIENT}Availability       |
+|${PNODE5}//HP_ISEEPerson[1]//Property[@name='Notes']              |@value           |$expected${ISEECLIENT}Notes              |
+|${PNODE5}//HP_ISEEPerson[1]//Property[@name='data_privacy_opt_in']|@value           |$expected${ISEECLIENT}data_privacy_opt_in|
+|${PNODE5}                                                         |GDID             |$expected${ISEECLIENT}GDID               |
+
+!|validate property having parentNode with propertyChildNode and propertyValue                |
+|pn       |pcn                           |pv                                                  |
+|${PNODE5}|CollectorType                 |$expected${ISEECLIENT}CollectorType                 |
+|${PNODE5}|CollectorVersion              |$expected${ISEECLIENT}CollectorVersion              |
+|${PNODE5}|UserApprovedSystemSerialNumber|$expected${ISEECLIENT}UserApprovedSystemSerialNumber|
+|${PNODE5}|AutoDetectedSystemSerialNumber|$expected${ISEECLIENT}AutoDetectedSystemSerialNumber|
+|${PNODE5}|SystemIdent                   |$expected${ISEECLIENT}SystemIdent                   |
+|${PNODE5}|CoreSystemModel               |$expected${ISEECLIENT}CoreSystemModel               |
+|${PNODE5}|Manufacturer                  |$expected${ISEECLIENT}Manufacturer                  |
+|${PNODE5}|HPID                          |$expected${ISEECLIENT}HPID                          |
+|${PNODE5}|SPID                          |$expected${ISEECLIENT}SPID                          |
+|${PNODE5}|GUID                          |$expected${ISEECLIENT}GUID                          |
+|${PNODE5}|Hostname                      |$expected${ISEECLIENT}Hostname                      |
+|${PNODE5}|FQDN                          |$expected${ISEECLIENT}FQDN                          |
+|${PNODE5}|MacAddress                    |$expected${ISEECLIENT}MacAddress                    |
+|${PNODE5}|IPAddress                     |$expected${ISEECLIENT}IPAddress                     |
+|${PNODE5}|ClusterAlias                  |$expected${ISEECLIENT}ClusterAlias                  |
+|${PNODE5}|ProductId                     |$expected${ISEECLIENT}ProductId                     |
+|${PNODE5}|UserApprovedProductId         |$expected${ISEECLIENT}UserApprovedProductId         |
+|${PNODE5}|TimestampGenerated            |$expected${ISEECLIENT}TimestampGenerated            |
+|${PNODE5}|OSNameAndVersionString        |$expected${ISEECLIENT}OSNameAndVersionString        |
+|${PNODE5}|platformType                  |$expected${ISEECLIENT}platformType                  |
+
+!|validate node having childNode  value                          |
+|parentNode|childNode      |nodeValue                            |
+|${PNODE5} |EntitlementType|$expected${ISEECLIENT}EntitlementType|
+|${PNODE5} |EntitlementId  |$expected${ISEECLIENT}EntitlementId  |
+|${PNODE5} |SerialNumber   |$expected${ISEECLIENT}SerialNumber   |
+|${PNODE5} |ProductNumber  |$expected${ISEECLIENT}ProductNumber  |
+|${PNODE5} |ProductId      |$expected${ISEECLIENT}ProductId      |
+|${PNODE5} |ObligationId   |$expected${ISEECLIENT}ObligationId   |
+
+!|validate node having childNode  value                              |
+|parentNode|childNode          |nodeValue                            |
+|${PNODE6} |Caption            |$expected${PNODE6}Caption            |
+|${PNODE6} |Description        |$expected${PNODE6}Description        |
+|${PNODE6} |AttachmentName     |$expected${PNODE6}AttachmentName     |
+|${PNODE6} |AttachmentObject   |$expected${PNODE6}AttachmentObject   |
+|${PNODE6} |AttachmentReference|$expected${PNODE6}AttachmentReference|
+|${PNODE6} |AttachmentSize     |$expected${PNODE6}AttachmentSize     |
+|${PNODE6} |AttachmentType     |$expected${PNODE6}AttachmentType     |
+|${PNODE6} |Format             |$expected${PNODE6}Format             |
+|${PNODE6} |Protocol           |$expected${PNODE6}Protocol           |
+
+!|validate node having childNode  value         |
+|parentNode|childNode|nodeValue                 |
+|${PNODE7} |Business |$expected${PNODE7}Business|
+|${PNODE7} |Name     |$expected${PNODE7}Name    |
+
+
+
+
+

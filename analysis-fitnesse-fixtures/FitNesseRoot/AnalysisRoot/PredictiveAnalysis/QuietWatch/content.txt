@@ -1,0 +1,94 @@
+!4 This is an E2E test for Predictive Analytics.
+This test submits two 3Par collections 1 for outage and another for non-outage and tests entire PA flow.
+	*1. This test will submit 90 days of parsed data collection + zip file for 91day for one 3PAR devices which results in outage.
+	*2. Make the serial number unique for each run in both zip file and parsed config for 90 days.
+	*3. Uploads the collectin to curiosity for parsing and verifies it.
+	*4. Verifies the prediction has arrived in the 'pa_predictions' topic.
+	*5. Verifies the prediction in the Elastic Search
+	*6. Acknowledge the prediction, then checks if the prediction has been acknowledged
+    *7. Submit collection(91 days of parsed config) for a device which don't generate prediction and verifies no prediction is being generated.
+ 
+!*** Test Setup
+
+!|import                               |
+|org.joda.time						   |
+|java.util.UUID						   |
+|org.joda.time.LocalDateTime						   |
+
+
+!define OUTAGE_CONFIG_FILE_PATH           {${RESOURCE_DIRECTORY}/collections/threepar/consecutive_predictions_for_watcherWait}
+!define PRODUCER_INDEX_NAME {/pa_index-live-predictions/prediction}
+!define PA_ZK_NAMESPACE           {predictive-analytics}
+!define CONSUMER_INDEX_NAME       {/pa_index-modified-predictions/prediction}
+!define CPG_NAME          		{VCL400}
+!define quitePeriod          		{false}
+
+
+
+!2 setup env properties
+!| script:Pa Common Config  |${ZOOKEEPER_ENV}                |${PA_ZK_NAMESPACE}  |${ZOOKEEPER_QUORUM}|${KAFKA_TRUSTSTORE_PATH}  |${KAFKA_TRUSTSTORE_PASSWD}|
+|$EWProps =                 |getEScfg |       
+   
+
+!2 get localDateTime
+!| script | Local Date Time |
+|$timestamp=| now |
+
+!| script | $timestamp |
+|$timestamp16d=| minusDays|16 |
+
+
+!| script | $timestamp |
+|$timestamp7d=| minusDays|7 |
+
+!| script | $timestamp |
+|$timestamp5m=| minusMinutes|5 |
+
+!| script:Pa Connections Util                      |
+|$serial_no =|randomUUIDString                                                                                      |
+
+
+!define QUERY {!-{"query": {"bool": {"must": [{"match": {"serial_number": "$serial_no"}},{"match": {"model": "-!${CPG_NAME}!-"}}]}}}-!}
+
+!| script:Pa Connections Util                      |
+|$prediction_id =|randomUUIDString                                                                                      |
+|produce|!-{"model": "VCL400","quiet_period": "true","email_sent":"$timestamp16d","latest_symptom_timestamp": "$timestamp16d","product_number": "testing_Again_Product","customer": "Nova","min_time_to_outage_mins": "-1","confidence": "0","max_time_to_outage_mins": "-1","prediction_timestamp": "1","prediction_id": "$prediction_id","serial_number": "$serial_no","avg_time_to_outage_mins": "0","predicted_outage_msg_description": "CPG Growth Failure","last_six_events": "[15.9522433648408884088,15.95224336484088,15.95224336484088]","latest_symptom_description": "VCL4101","mock": "false","acknowledged": "false"}-!|Msg|${CONSUMER_INDEX_NAME}|To|$EWProps|Es|/serial_number|Parameterized|$serial_no|
+|$prediction=|consumeFrom|${CONSUMER_INDEX_NAME}|Es By| !-{"query": {"bool": {"must": [{"match": {"serial_number": "$serial_no"}},{"match": {"prediction_id": "$prediction_id"}},{"match": {"model": "-!${CPG_NAME}!-"}}]}}}-!| Thing|$EWProps|And|2000|Thing Formation|
+
+!2 Check if values are correct
+!| script|data utility  |
+|check   |checkJsonpath;|$prediction|$.prediction_id|$prediction_id  |
+|check   |checkJsonpath;|$prediction|$.quiet_period|true  |
+
+!| script:Pa Connections Util                      |
+|$prediction_id =|randomUUIDString                                                                                      |
+|produce|!-{"model": "VCL400","quiet_period": "false","email_sent":"$timestamp7d","latest_symptom_timestamp": "$timestamp5m","product_number": "testing_Again_Product","customer": "Nova","min_time_to_outage_mins": "-1","confidence": "0","max_time_to_outage_mins": "-1","prediction_timestamp": "1","prediction_id": "$prediction_id","serial_number": "$serial_no","avg_time_to_outage_mins": "0","predicted_outage_msg_description": "CPG Growth Failure","last_six_events": "[15.9522433648408884088,15.95224336484088,15.95224336484088]","latest_symptom_description": "VCL4101","mock": "false","acknowledged": "false"}-!|Msg|${CONSUMER_INDEX_NAME}|To|$EWProps|Es|/serial_number|Parameterized|$serial_no|
+
+|com.hp.curiosity.fixtures.general.Sleep |
+|time                |start?             |
+|10000              |                   |
+
+!| script:Pa Connections Util                      |
+|$prediction=|consumeFrom|${CONSUMER_INDEX_NAME}|Es By| !-{"query": {"bool": {"must": [{"match": {"serial_number": "$serial_no"}},{"match": {"prediction_id": "$prediction_id"}},{"match": {"model": "-!${CPG_NAME}!-"}}]}}}-!| Thing|$EWProps|And|10000|Thing Formation|
+
+!2 Check if values are correct
+!| script|data utility  |
+|check   |checkJsonpath;|$prediction|$.prediction_id|$prediction_id  |
+|check   |checkJsonpath;|$prediction|$.quiet_period|true  |
+
+
+!| script:Pa Connections Util                      |
+|$prediction_id =|randomUUIDString                                                                                      |
+|produce|!-{"model": "VCL400","quiet_period": "false","email_sent":"$timestamp7d","latest_symptom_timestamp": "$timestamp","product_number": "testing_Again_Product","customer": "Nova","min_time_to_outage_mins": "-1","confidence": "0","max_time_to_outage_mins": "-1","prediction_timestamp": "1","prediction_id": "$prediction_id","serial_number": "$serial_no","avg_time_to_outage_mins": "0","predicted_outage_msg_description": "CPG Growth Failure","last_six_events": "[15.9522433648408884088,15.95224336484088,15.95224336484088]","latest_symptom_description": "VCL4101","mock": "false","acknowledged": "false"}-!|Msg|${CONSUMER_INDEX_NAME}|To|$EWProps|Es|/serial_number|Parameterized|$serial_no|
+
+|com.hp.curiosity.fixtures.general.Sleep |
+|time                |start?             |
+|25000              |                   |
+
+!| script:Pa Connections Util                      |
+|$prediction=|consumeFrom|${CONSUMER_INDEX_NAME}|Es By| !-{"query": {"bool": {"must": [{"match": {"serial_number": "$serial_no"}},{"match": {"prediction_id": "$prediction_id"}},{"match": {"model": "-!${CPG_NAME}!-"}}]}}}-!| Thing|$EWProps|And|10000|Thing Formation|
+
+!2 Check if values are correct
+!| script|data utility  |
+|check   |checkJsonpath;|$prediction|$.prediction_id|$prediction_id  |
+|check   |checkJsonpath;|$prediction|$.email_sent|$timestamp7d  |

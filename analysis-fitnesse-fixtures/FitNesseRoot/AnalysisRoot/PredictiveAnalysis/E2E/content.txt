@@ -1,0 +1,92 @@
+!4 This is an E2E test for Predictive Analytics.
+This test submits two 3Par collections 1 for outage and another for non-outage and tests entire PA flow.
+	*1. This test will submit 90 days of parsed data collection + zip file for 91day for one 3PAR devices which results in outage.
+	*2. Make the serial number unique for each run in both zip file and parsed config for 90 days.
+	*3. Uploads the collectin to curiosity for parsing and verifies it.
+	*4. Verifies the prediction has arrived in the 'pa_predictions' topic.
+	*5. Verifies the prediction in the Elastic Search
+	*6. Acknowledge the prediction, then checks if the prediction has been acknowledged
+    *7. Submit collection(91 days of parsed config) for a device which don't generate prediction and verifies no prediction is being generated.
+ 
+!define OUTAGE_CONFIG_FILE_PATH           {${RESOURCE_DIRECTORY}/collections/threepar/outage_device_1202078_for_e2e}
+!define CPGNAME	{VCL400}
+!define PRODUCER_TOPIC_NAME {pa_analysis_input}
+!define PA_ZK_NAMESPACE           {predictive-analytics}
+!define CPG_NAME_NOP          	{FastClass_R5_July2014}
+!define ES_INDEX_NAME             {pa_index-live-predictions}
+!define CPG_NAME          		{VCL400}
+
+!**> Test Setup
+!5 Constants
+!| script|data utility        |
+|$gdid1= |create random string|
+
+!2 setup env properties
+!|script: Zoo Keeper Properties Utility |${ZOOKEEPER_ENV}|${PA_ZK_NAMESPACE}|${ZOOKEEPER_QUORUM}|
+|$EWProps = | getElasticSearchProperties |
+|$secureKafkaProducerProps = | getKafkaProperties; |	${KAFKA_TRUSTSTORE_PATH}  |${KAFKA_TRUSTSTORE_PASSWD}|
+***!
+!**> Get curiosity collection ids
+!4 List All Thingformation Types and get UUID for Data Collections
+!| script          |get request                                                                           |
+|set url           |$REST_MGMTURL/thingformationtypes                                                     |
+|check             |execute get request|true                                                              |
+|$tft_uuid_list=   |check jsonpath     |$[?(@.thingformationTypeName=='Collection')].thingformationTypeId||
+|$thingtypeid_list=|check jsonpath     |$[?(@.thingformationTypeName=='Collection')].thingTypeId         ||
+
+!| script     |data utility                          |
+|$tft_uuid=   |checkJsonpath;|$tft_uuid_list   |$.[0]|
+|$thingtypeid=|checkJsonpath;|$thingtypeid_list|$.[0]|
+
+!4 Create Clean Things for devices (createThing)
+!| script           |post request        |
+|set url            |$REST_BASEURL/things|
+|set expected status|201                 |
+|set body                                |!-
+{
+	"thingType": {
+		"thingTypeId": "$thingtypeid"
+	},
+	"attributes": {
+                "GDID": "$gdid1"
+	}
+}
+-!|
+|check        |execute post request|true    |
+|$thing_uuid1=|check jsonpath      |thingId||
+***!
+
+!2 Change the serial number in the parsed config (90 days) for outage device and submit it to PA engine.
+!| script:File Recycler                                                                                       |
+|$serial_no =|randomUUIDString|
+!| script: File To Kafka Producer|
+|write;|${OUTAGE_CONFIG_FILE_PATH}|${PRODUCER_TOPIC_NAME}|$secureKafkaProducerProps|$serial_no|
+
+!2 Recycle the zip file with the new serial no and upload to Curiosity
+!|script               |FileRecycler                                                              |
+|$recycled_file =      |recycle|${RESOURCE_DIRECTORY}/DataTee/3par_cpg_e2e.zip|SerialNo|$serial_no|
+|$recycled_file_path  =|getPath|$recycled_file                                                    |
+
+|script                 |multipart upload                                                                 |
+|set url                |$REST_BASEURL/thingformations?thingformationTypeId=$tft_uuid&thingId=$thing_uuid1|
+|set multipart file     |$recycled_file_path                                                              |
+|set expected status    |201                                                                              |
+|set multipart mime type|application/zip                                                                  |
+|check                  |execute multipart upload                |true                                    |
+|$tf2_uuid=             |check jsonpath                          |$[0].uuid                               |
+
+|com.hp.curiosity.fixtures.general.Sleep|
+|time               |start?             |
+|15000              |                   |
+
+!2 Retrieve the predictions generated for the serial no
+!| script|Elastic Client| $EWProps|
+|$predictions=|searchForPredictions;|${ES_INDEX_NAME}|$serial_no|
+
+!2 Check if prediction has been generated
+!| script|Json Util|
+|check|checkJsonPathExists;|$predictions|$.hits.hits[?(@._source.model=='${CPG_NAME}')]|true|
+
+!2 Check if prediction has not been generated when data does not generate one
+!| script|Json Util  |
+|check|checkJsonPathExists;|$predictions|$.hits.hits[?(@._source.model=='${CPG_NAME_NOP}')]|false|

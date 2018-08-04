@@ -1,0 +1,48 @@
+!2 ''User Variables''
+
+Change the variables with the values pointing to your test environment
+
+|!define TEST_ENV     MAV_TEST_ENV|A unique name for your testing environment (e.g. Johns_Test_Env)|
+
+|!define BASE_SERVER  MAV_BASE_SERVER                       |The server you would like to test                                                                                                             |
+|!define WEB_PROTOCOL MAV_WEB_PROTOCOL                      |The protocol your REST server accepts (https or http)                                                                                         |
+|!define REST_PORT    MAV_REST_PORT                         |The port your REST server listens to on your BASE_SERVER                                                                                      |
+|!define PROJECT_ROOT MAV_PROJECT_ROOT                      |The Global PROJECT Root  (/v2/curiosity)                                                                                                      |
+|!define ZOOKEEPER_QUORUM MAV_ZOOKEEPER_QUORUM              |The ZK quorum                                                                                                                                 |
+|!define ZOOKEEPER_ENV MAV_TEST_ENV                         |The ZK env                                                                                                                                    |
+|!define KAFKA_SERVER MAV_KAFKA_SERVER                      |Kafka server                                                                                                                                  |
+|!define SCHEMA_REGISTRY_URLS MAV_SCHEMA_REGISTRY_URLS      |The schema registry servers                                                                                                                   |
+|!define NOTIFICATION_SERVER MAV_NOTIFICATION_SERVER        |This should be the system where Fitnesse server is running. It must be reachable by this name from the BASE_SERVER. Port must be 8080 for now||
+|!define ELASTIC_CLUSTER MAV_ELASTIC_CLUSTER                |The elastic cluster name for the testing environment                                                                                          |
+|!define ELASTIC_SERVERS MAV_ELASTIC_SERVERS                |The elastic servers for the testing environment                                                                                               |
+|!define ELASTIC_ENABLE_SSL MAV_ELASTIC_ENABLE_SSL          |elastic ssl ON flag                                                                                                                           |
+|!define PA_REST MAV_PA_REST                                |The Predictive Analytics acknowledgement base URL                                                                                             |
+|!define PA_INPUT MAV_PA_INPUT_TOPIC                        |The Predictive Analytics input kafka topic                                                                                                    |
+|!define KAFKA_SECURITY_PROTOCOL MAV_KAFKA_SECURITY_PROTOCOL|The Kafka Security Protocol                                                                                                                   |
+|!define KAFKA_TRUSTSTORE_PATH MAV_KAFKA_TRUSTSTORE_PATH    |The Kafka Truststore Path                                                                                                                     |
+|!define KAFKA_TRUSTSTORE_PASSWD MAV_KAFKA_TRUSTSTORE_PASSWD|The Kafka Truststore Password                                                                                                                 |
+|!define RESOURCE_DIRECTORY MAV_RESOURCE_DIRECTORY          |The resource directory to read the resource files
+|!define ANALYSIS_JAAS_CONFIGURATION MAV_ANALYSIS_JAAS_CONFIGURATION|The JAAS configuration for accessing secure environment                                                                                     |
+|!define COMMAND_PATTERN MAV_COMMAND_PATTERN    |This is the command line to run the JVM hosting the FitNesse fixtures                                                                       |
+----
+!contents -R7
+
+
+----
+!2 ''System Variables''
+!define TEST_SYSTEM  {slim}
+!define COLLAPSE_SETUP {true}
+!define PROXY_HOST MAV_PROXY_HOST
+!define PROXY_PORT MAV_PROXY_PORT
+!define COLLAPSE_TEARDOWN {false}
+!define RESOURCE_DIRECTORY    MAV_RESOURCE_DIRECTORY
+!define TEMP         MAV_TEMP_DIRECTORY
+!define OUTPUT_DIRECTORY         MAV_OUTPUT_DIRECTORY
+
+
+----
+!2 ''Classpaths''
+
+
+!path ${OUTPUT_DIRECTORY}/classes
+!path ${OUTPUT_DIRECTORY}/analysis-fitnesse-fixtures*

@@ -1,0 +1,34 @@
+!3 !style_code(!style_blue[US 46103 - Submit a good !-cpgConfigCollection-! and validate the Prediction output]) 
+!**> Test Setup
+!define CONFIG_FILE_PATH   		{${RESOURCE_DIRECTORY}/collections/threepar/outage_cpg_91days}
+!define PRODUCER_TOPIC_NAME       {pa_analysis_input}
+!define ES_INDEX_NAME             {pa_index-live-predictions}
+!define PA_ZK_NAMESPACE           {predictive-analytics}
+!define CPG_NAME          		{GCNJ_FC_VM}
+Send a cpgConfig and verify that it gets to the correct Prediction
+***!
+
+!**> setup env properties
+!|script: Zoo Keeper Properties Utility |${ZOOKEEPER_ENV}|${PA_ZK_NAMESPACE}|${ZOOKEEPER_QUORUM}|
+|$EWProps = | getElasticSearchProperties |
+|$secureKafkaProducerProps = | getKafkaProperties; |	${KAFKA_TRUSTSTORE_PATH}  |${KAFKA_TRUSTSTORE_PASSWD}|
+***!
+
+!2 Verify Positive prediction
+!3 Submit Prediction
+!| script:File Recycler|
+|$serial_no = | randomUUIDString |
+!| script: File To Kafka Producer|
+|write;|${CONFIG_FILE_PATH}|${PRODUCER_TOPIC_NAME}|$secureKafkaProducerProps|$serial_no|
+
+|com.hp.curiosity.fixtures.general.Sleep|
+|time               |start?             |
+|20000              |                   |
+
+!| script|Elastic Client| $EWProps|
+|$predictions=|searchForPredictions;|${ES_INDEX_NAME}|$serial_no|
+
+!2 Check if values are correct
+!| script|Json Util  |
+|check|checkJsonPathExists;|$predictions|$.hits.hits[?(@._source.model=='${CPG_NAME}')]|true|
+*!

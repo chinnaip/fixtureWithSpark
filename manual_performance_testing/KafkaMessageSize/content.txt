@@ -1,0 +1,3 @@
+User Story: 18244 As the platform developer, I need to ensure that big result lists can be processed throughout the platform. To be able to do this, the result list has to be split into pages and processed individually.
+!1 Test suite X
+!contents -R2 -g -p -f -h

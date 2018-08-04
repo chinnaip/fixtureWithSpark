@@ -1,0 +1,60 @@
+!4 This is an automated test for Predictive Analytics Feedback services functionality test .
+This test submits 12+ consecutive predictions to "live-predictions" index which would trigger watcher to generate prediction to "modified-predictions" index.
+	*1. This test will submit 12 consecutive predictions to live-predictions ES index.
+	*2. Change the serial no and 'latest_symptom_timestamp' from today to 12 days backward.
+	*3. Verifies the prediction has arrived in the 'modified_predictions' index.
+	*4. Acknowledge the prediction, then checks if the prediction has been acknowledged.    
+ 
+!*** Test Setup
+
+
+!define OUTAGE_CONFIG_FILE_PATH           {${RESOURCE_DIRECTORY}/collections/threepar/outage_prediction_1202078_for_e2e}
+!define PRODUCER_INDEX_NAME {/pa_index-live-predictions/prediction}
+!define PA_ZK_NAMESPACE           {predictive-analytics}
+!define CONSUMER_INDEX_NAME       {/pa_index-modified-predictions/prediction}
+!define CPG_NAME          		{VCL400}
+!define URL_TEMPLATE         {HOST/prediction-notification-feedback/notifications/UUID}
+
+
+!2 setup env properties
+!| script:Pa Common Config  |${ZOOKEEPER_ENV}                |${PA_ZK_NAMESPACE}  |${ZOOKEEPER_QUORUM}|${KAFKA_TRUSTSTORE_PATH}  |${KAFKA_TRUSTSTORE_PASSWD}|
+|$EWProps =                 |getEScfg                                                          |
+
+!define  idPath	{/serial_number}
+
+!4 Change the serial number in the predictions templates and write to modified-preditions index.
+!| script:Pa Connections Util                                                                                       |
+|$serial_no =|randomUUIDString                                                                                      |
+|produce |${OUTAGE_CONFIG_FILE_PATH}| File |${PRODUCER_INDEX_NAME}|To|$EWProps|Es|${idPath}	|Parameterized |$serial_no|
+
+!define QUERY {!-{"query": {"bool": {"must": [{"match": {"serial_number": "$serial_no"}},{"match": {"model": "-!${CPG_NAME}!-"}}]}}}-!}
+!define path {!-underlying$1/prediction_id/value-!}
+
+|com.hp.curiosity.fixtures.general.Sleep|
+|time               |start?             |
+|15000              |                   |
+
+
+!4 Verify Positive prediction
+!| script:Pa Connections Util                                                                                                                           |
+|$prediction=|consumeFrom|${CONSUMER_INDEX_NAME}|Es By| ${QUERY}| Thing|$EWProps|And|15000|Thing Formation|
+
+
+!4 Extract Prediction ID from prediction
+|script          |data utility                                          |
+|$predictionJson=|match with pattern;|$prediction    |!-\{.*\}-!        |
+|$predictionid=  |check jsonpath;    |$predictionJson|$['prediction_id']|
+
+
+!4 Acknowledge the prediction via the REST API
+!|	script     |Pa Http Client                                                      |
+|$ackEdString=|ack|${PA_REST}|Prediction|${URL_TEMPLATE}|Notification|$predictionid|
+
+!4 Validate the acknowledgement was successful by checking the prediction document has been updated as acknowledged in elastic
+!|script            |GetRequest                                                           |
+|set url            |${PA_REST}/prediction-notification-feedback/predictions/$predictionid|
+|set expected status|200                                                                  |
+|ensure             |execute get request                                                  |
+|show               |get response body                                                    |
+|show               |get header x tracking id                                             |
+|check              |check jsonpath             |acknowledged            |true            |

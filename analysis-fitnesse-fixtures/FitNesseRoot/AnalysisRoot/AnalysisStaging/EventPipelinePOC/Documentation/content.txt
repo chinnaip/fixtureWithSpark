@@ -1,0 +1,133 @@
+This page describes how to setup and troubleshoot the EVent ANalysis (EVAN) storm topology acceptance testing based on fitnesse.
+!2 Contents
+- [[Background Information][#backgroundinformation]]
+- [[Overview][#overview]]
+- [[Prerequisites][#prerequisites]]
+- [[Troubleshooting][#troubleshooting]]
+!anchor backgroundinformation
+!2 Background Information
+The section provides links to some !-R&D-! wiki pages which contain information related to this topic.
+
+https://rndwiki.corp.hpecorp.net/confluence/display/sa20/Definition+of+SA2.0+Event+Lifecycle
+https://rndwiki.corp.hpecorp.net/confluence/display/sa20/SA2.0+Sandbox+User+Guide
+https://github.hpe.com/mark-davis2/event-pipeline-poc/tree/master/event-topology-analysis
+
+'''Note:''' It is important to have an understanding of the event pipeline and setting up and configuring hdp-sandboxes at least.
+!anchor overview
+!2 Overview
+This section briefly describes the context and how the tests work.
+
+The diagram in Fig.1 depicts the context of the EVAN topology acceptance tests.
+Tests use the variables listed in Table.1 to define the input data and expected output.
+
+ParameterizedEvent drives the test based on these variables with the help of macros in the ScenarioLibrary and several fixtures (!-EventProducer, EventConsumer, ZipXmlChecker and EventXmlChecker-!).
+The fitnesse tests produce an Event message directly onto the "event-indication" Kafka topic and consume an Event message from the "event-analyzed" Kafka topic which is fed by the EVAN Storm Topology. 
+The expected attachment is extracted from the package in consumed Event message and validated based on the expected values automatically determined by ParameterizedEvent.
+
+'''Note:''' The !-EventProducer-! fixture works asynchronously so it can't currently detect if there is a failure submitting the Event message. This means that the result of the fixture will show as green even there is an exception in the logs. The !-EventConsumer-! fixture on the other hand works synchronously so that if the if message submission fails or there is another problem there will probably be no message available to consume and an exception will appear in the test page.
+
+'''Table.1: Variables required by ParameterizedEvent'''
+|EVENT_FILE_PATH          |Path to an Event data package ZIP file                                                         |
+|PRODUCER_TOPIC_NAME      |Name of Kafka topic to produce Event messages on                                               |
+|                         |'''Note:''' This variable is NOT actually used currently and is for informational purposes only|
+|CONSUMER_TOPIC_NAME      |Name of Kafka topic to consume Event messages from                                             |
+|EXPECTED_EVENT_ATTACHMENT|Name of attachment XML file expected in the consumed Event message                             |
+|EXPECTED_OUTPUT_FILE     |Name of the expected output file. An XML file containing validation inputs (i.e. expected values)  |
+|EXPECTED_EVENT_FILE      |Path to ZIP file containing the expected output file                                           |
+
+'''Fig.1: EVAN Storm Toplology'''
+!img http://www.plantuml.com/plantuml/img/VL7BJiCm4BpdArO-fOV-GBWKIgzm076gXAncN2piTRJUbCVNurIfAnJ4qJFhsPcTJLOhEiRGTBiJM6_PXg_iCpqDQTH6O7kAoDaUGKvI96CmpRrwxlt1gazi36aQ_E6cwUvnI3s4xbBGydn84ctmtvW1JWeASDeHL-egj2zIYZW4grY3Zvwn_in1ZPdDKNMtqBCJir2JCLGbd6n1zgnl-7EJ4o1QUOUKVTvH-yXuyVYWSzuLJV-eLR6SNJ5FMSjnughfdYkqS1KXvMxRtVQVQ0WPr9wNN5BqLHmbZlkLVcBdy-R2rd8qrMekAjTYDcMoTFm3
+'''Note:''' This diagram was created automatically using the PlantUML script in the !-EventTopology-! Java class Javadoc comment.
+!anchor prerequisites
+!2 Prerequisites
+This section outlines what you must do before you run any event analysis test suites.
+!3 1.Configure target system under test
+- Uncomment target hdp-sandbox in local hosts file (e.g. %systemroot%\system32\drivers\etc\hosts)
+'''Note:''' The default configuration is in the analysis-fitnesse-fixtures/pom.xml file expects hdp-sandbox.hpe.com
+!3 2.Setup target hdp-sandbox
+- Target hdp-sandbox must be up to date and have Onboarding curiosity reference data installed via integration deploy etc.
+- Platform fitnesses tests should be all/mostly passing against the target hdp-sandbox (see [[here][https://rndwiki.corp.hpecorp.net/confluence/display/sa20/Executing+and+developing+FitNesse+Tests
+]])
+- Event pipeline POC fitnesse "event-analysis" topology should be deployed to the hdp-sandbox
+!3 3.Run one test to verify the setup
+- Navigate to a !-OneView-! test for instance and run it.
+- Follow the Troubleshooting section below if the test fails completely (i.e. if you get exceptions or timeouts etc.).
+!anchor troubleshooting
+!2 Troubleshooting
+This section describes the basic steps of how to figure out what is wrong when tests fail completely or typical things that may go wrong.
+
+Issues with failing tests can be determined by this sequence which if followed by a list of related exceptions:
+1. Is the hdp-sandbox healthy and connectable?
+- Ensure you can connect to it via SSH at least.
+- Ensure your hosts file is pointing to the correct target hdp-sandbox.
+2. Are the Storm and Kafka etc. services healthy?
+- Check this via the [[Ambari UI][http://hdp-sandbox:8080]].
+3. Is the Schema Registry healthy?
+- Eg. Try: http://hdp-sandbox:8081/schemas/ids/142 //The !-TextfileContentDatapackage-! Avro message schema
+4. Is the "event-analysis" Storm topology in the cluster and active?
+- Check this via the [[Storm UI][http://hdp-sandbox:8772]].
+5. Are the required Kafka topics available?
+- Check this with the following scripts: kafka-topics.sh and kafka-configs.sh
+6. Are messages getting to the producer and consumer topics?
+- Check this my monitoring those topics with the kafka-console-consumer.sh script.
+7. Is the Event being processed by the storm topology without errors?
+- Check this by monitoring the [[storm topology logs][#stormlogs]]
+8. Are there Kafka consumer messages race conditions or stale messages?
+- This happens if messages are being put on the Kafka topic from other sources or previous messages haven't been consumed due to previous failures.
+- If you suspect that the messages being consumed don't correspond to the message the test submitted then you can monitor the kafka topic or even purge it.
+- '''Note:''' If you see messages on the topic before you run a test then the topic should be purged
+{{{
+- Monitor a Kafka topic as follows:
+<kafka-dir>/kafka/bin/kafka-console-consumer.sh --zookeeper localhost:5181 --topic <topic_name>
+- Purge a Kafka topic as follows:
+<kafka-dir>/kafka/bin/kafka-configs.sh --entity-type topics --entity-name <topic_name> --zookeeper localhost:5181 --alter --add-config retention.ms=1000
+# Wait log.retention.check.interval.ms (see: http://kafka.apache.org/081/configuration.html)
+<kafka-dir>/kafka/bin/kafka-configs.sh --entity-type topics --entity-name <topic_name> --zookeeper localhost:5181 --alter --delete-config retention.ms
+}}}
+Here are exceptions that may appear in the fitnesse test or execution logs for (indexed) items in the sequence above:
+
+(a) If there is an issue with connecting to the hdp-sandbox (1) something like this will appear in the logs:
+[kafka-producer-network-thread | producer-1] DEBUG o.a.kafka.common.network.Selector - Connection with hdp-sandbox.hpe.com/15.194.238.70 disconnected
+java.net.ConnectException: Connection timed out: no further information
+(b) If the !-EventConsumer-! fixture fails to consume an Event message there may be several root causes (see 2 to 7 above), but you'll typically see exceptions like the following in the test page:
+__EXCEPTION__:kafka.consumer.ConsumerTimeoutException
+	at kafka.consumer.ConsumerIterator.makeNext(ConsumerIterator.scala:69) [kafka_2.10-0.9.0.2.4.0.0-169.jar]
+OR
+__EXCEPTION__:org.I0Itec.zkclient.exception.ZkTimeoutException: Unable to connect to zookeeper server within timeout: 30000
+(c) If the expected attachment doesn't exist in the Even message package you'll see the following text in red on the fitnesse test page:
+check	attachment exists	eventAnalyzed.xml	[false] expected [true]
+(d) If $event is null than the EventPackage fixture constructor to use and you'll see the following text in yellow on the fitnesse test page:
+$event Could not invoke constructor for $event[0]		
+(e) If $attachment is null then EventXmlChecker fixture constructor throws an NPE
+script	Event Xml Checker java.lang.NullPointerException	$attachment
+
+This following warnings and errors may be appear in the Fitnesse test execution log. These are known and don't affect the outcome of the test:
+{{{
+Standard Error:
+[WARNING] Avro: Invalid default for field format: "null" not a ["null",{"type":"string","avro.java.string":"String"}]
+[WARNING] Avro: Invalid default for field format: "null" not a ["null",{"type":"string","avro.java.string":"String"}]
+log4j:WARN No appenders could be found for logger (kafka.utils.VerifiableProperties).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+Warning: validation was turned on but an org.xml.sax.ErrorHandler was not
+set, which is probably not what is desired.  Parser will use a default
+ErrorHandler to print the first 10 errors.  Please call
+the 'setErrorHandler' method to fix this.
+Error: URI=null Line=2: Document is invalid: no grammar found.
+Error: URI=null Line=2: Document root element "ISEE-Event", must match DOCTYPE root "null".
+}}}
+!anchor stormlogs
+!2 Monitoring Storm Logs
+To check the Storm topology logs proceed as follows:
+ssh to hdp-sandbox
+
+Run the following commands:
+cd /var/log/storm
+watch -d ls –lt
+
+ Select the “event-analysis” or "jrules-event-topology" worker .log file that changes and hit CTRL-C
+ e.g. event-analysis-6-1467737053-worker-6705.log
+ Note: The prefix of this file is the instance name of the EVAN topology which you can also find in the Storm UI: http://hdp-sandbox:8772/ 
+
+tail -f <paste selected log file name>
+
